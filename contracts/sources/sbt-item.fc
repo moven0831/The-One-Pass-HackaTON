@@ -1,5 +1,5 @@
 ;;
-;;  TON SBT Item Smart Contract
+;;  TON SBT Smart Contract - Item
 ;;
 
 #include "utils/stdlib.fc";
@@ -57,8 +57,9 @@ global int storage::revoked_at;
 }
 
 () send_msg(int flag, slice to_address, int amount, int op, int query_id, builder payload, int send_mode) impure inline {
-    var body = begin_cell().store_uint(op, 32).store_uint(query_id, 64);
-    if (~ builder_null?(payload)) {
+    var body = begin_cell().store_uint(op, 32)
+                           .store_uint(query_id, 64);
+    if (~ builder_depth(payload)) {
         body = body.store_builder(payload);
     }
 
@@ -85,7 +86,7 @@ global int storage::revoked_at;
     load_data();
 
     if (~ init?) {
-        throw_unless(405, equal_slices(storage::collection_address, sender_address));
+        throw_unless(405, equal_slice_bits(storage::collection_address, sender_address));
 
         storage::owner_address     = in_msg_body~load_msg_addr();
         storage::content           = in_msg_body~load_ref();
@@ -134,7 +135,7 @@ global int storage::revoked_at;
         return ();
     }
     if (op == op::prove_ownership()) {
-        throw_unless(401, equal_slices(storage::owner_address, sender_address));
+        throw_unless(401, equal_slice_bits(storage::owner_address, sender_address));
 
         slice dest = in_msg_body~load_msg_addr();
         cell body = in_msg_body~load_ref();
@@ -163,7 +164,7 @@ global int storage::revoked_at;
         return ();
     }
     if (op == op::destroy()) {
-        throw_unless(401, equal_slices(storage::owner_address, sender_address));
+        throw_unless(401, equal_slice_bits(storage::owner_address, sender_address));
 
         send_msg(flag::regular(), sender_address, 0, op::excesses(), query_id, null(), 128);
 
@@ -173,7 +174,7 @@ global int storage::revoked_at;
         return ();
     }
     if (op == op::revoke()) {
-        throw_unless(401, equal_slices(storage::authority_address, sender_address));
+        throw_unless(401, equal_slice_bits(storage::authority_address, sender_address));
         throw_unless(403, storage::revoked_at == 0);
 
         storage::revoked_at = now();
@@ -181,7 +182,7 @@ global int storage::revoked_at;
         return ();
     }
     if (op == op::take_excess()) {
-        throw_unless(401, equal_slices(storage::owner_address, sender_address));
+        throw_unless(401, equal_slice_bits(storage::owner_address, sender_address));
 
         ;; reserve amount for storage
         raw_reserve(min_tons_for_storage(), 0);
