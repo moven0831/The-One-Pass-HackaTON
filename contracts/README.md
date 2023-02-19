@@ -7,7 +7,7 @@ npx jest <FILENAME>
 
 ### Compile FunC contracts to Cell file
 ```bash
-# Do this first
+# Make sure your already at 'contracts' directory
 cd contracts
 
 # Then execute the bash script
