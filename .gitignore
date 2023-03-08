@@ -105,3 +105,5 @@ dist
 
 # Contracts Build
 contracts/build/
+contracts/testTemplate/
+contracts/sources/test-template.fc
