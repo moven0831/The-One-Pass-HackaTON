@@ -1,5 +1,7 @@
 ;;
-;;  TON NFT Item Smart Contract - Collection
+;;  Upgradable TON NFT Item Smart Contract - Collection
+;;  ---
+;;  Editor address can upgrade NFT's content
 ;;
 
 #include "utils/stdlib.fc";
@@ -18,6 +20,7 @@ global slice storage::owner_address;
 global int storage::next_item_index;
 global cell storage::content;
 global cell storage::nft_item_code;
+global tuple storage::editor_addresses;
 global int storage::voucher_index;
 global cell storage::royalty_params;
 
@@ -28,6 +31,7 @@ global cell storage::royalty_params;
   storage::next_item_index    = ds~load_uint(64);
   storage::content            = ds~load_ref();
   storage::nft_item_code      = ds~load_ref();
+  repeat(3) { tpush(storage::editor_addresses, ds~load_msg_addr()); }
   storage::voucher_index      = ds~load_uint(8);
   storage::royalty_params     = ds~load_ref();
 }
@@ -38,6 +42,9 @@ global cell storage::royalty_params;
                 .store_uint(storage::next_item_index, 64)
                 .store_ref(storage::content)
                 .store_ref(storage::nft_item_code)
+                .store_slice(first(storage::editor_addresses))
+                .store_slice(second(storage::editor_addresses))
+                .store_slice(third(storage::editor_addresses))
                 .store_uint(storage::voucher_index, 8)
                 .store_ref(storage::royalty_params)
                 .end_cell()
@@ -167,6 +174,17 @@ slice calculate_nft_item_address(int wc, cell state_init) {
       save_data();
       return ();
     }
+    if (op == 4) { ;; change content
+      throw_unless(410,
+        equal_slice_bits(sender_address, first(storage::editor_addresses)) |
+        equal_slice_bits(sender_address, second(storage::editor_addresses)) |
+        equal_slice_bits(sender_address, third(storage::editor_addresses)));
+      storage::content = in_msg_body~load_ref();
+      storage::royalty_params = in_msg_body~load_ref();
+      save_data();
+      return ();
+
+    }
     throw(0xffff);
 }
 
@@ -205,4 +223,13 @@ cell get_nft_content(int index, cell individual_nft_content) method_id {
                       .store_slice(common_content)
                       .store_ref(individual_nft_content)
           .end_cell());
+}
+
+cell get_editors() method_id {
+  load_data();
+  cell cs = begin_cell().store_slice(first(storage::editor_addresses))
+                        .store_slice(second(storage::editor_addresses))
+                        .store_slice(third(storage::editor_addresses))
+                        .end_cell();
+  return cs;
 }

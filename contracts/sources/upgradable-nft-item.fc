@@ -1,5 +1,7 @@
 ;;
-;;  TON NFT Item Smart Contract - Item
+;;  Upgradable TON NFT Item Smart Contract - Item
+;;  ---
+;;  Editor address can upgrade NFT's content
 ;;
 
 #include "utils/stdlib.fc";
@@ -15,12 +17,14 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 ;;  MsgAddressInt collection_address
 ;;  MsgAddressInt owner_address
 ;;  cell content
+;;  MsgAddressInt editor_address
 ;;
 
 global int storage::index;
 global slice storage::collection_address;
 global int temp::init?;
 global slice storage::owner_address;
+global tuple storage::editor_addresses;
 global cell storage::content;
 global int storage::remained_voucher_index;
 
@@ -35,11 +39,13 @@ global int storage::remained_voucher_index;
     ;; Successfully init
     if (temp::init?) {
       storage::owner_address = ds~load_msg_addr();
+      repeat(3) { tpush(storage::editor_addresses, ds~load_msg_addr()); }
       storage::content = ds~load_ref();
       storage::remained_voucher_index = ds~load_uint(8);
     }
     else {
       storage::owner_address = null();
+      repeat(3) { tpush(storage::editor_addresses, null()); }
       storage::content = null();
       storage::remained_voucher_index = null();
     }
@@ -50,6 +56,9 @@ global int storage::remained_voucher_index;
     begin_cell().store_uint(storage::index, 64)
                 .store_slice(storage::collection_address)
                 .store_slice(storage::owner_address)
+                .store_slice(first(storage::editor_addresses))
+                .store_slice(second(storage::editor_addresses))
+                .store_slice(third(storage::editor_addresses))
                 .store_ref(storage::content)
                 .store_uint(storage::remained_voucher_index, 8)
                 .end_cell());
@@ -164,6 +173,7 @@ global int storage::remained_voucher_index;
       throw_unless(405, equal_slice_bits(sender_address, storage::collection_address));
       
       storage::owner_address = cs~load_msg_addr();
+      repeat(3) { tpush(storage::editor_addresses, cs~load_msg_addr()); }
       storage::content = cs~load_ref();
       storage::remained_voucher_index = cs~load_uint(8);
 
@@ -197,6 +207,16 @@ global int storage::remained_voucher_index;
       );
       return ();
     }
+    if (op == op::edit_content()) {
+      throw_unless(410,
+        equal_slice_bits(sender_address, first(storage::editor_addresses)) |
+        equal_slice_bits(sender_address, second(storage::editor_addresses)) |
+        equal_slice_bits(sender_address, third(storage::editor_addresses)));
+      
+      storage::content = in_msg_body~load_ref();
+      store_data();
+      return ();
+    }
     throw(0xffff);
 }
 
@@ -207,4 +227,13 @@ global int storage::remained_voucher_index;
 (int, int, slice, slice, cell) get_nft_data() method_id {
   load_data();
   return (temp::init?, storage::index, storage::collection_address, storage::owner_address, storage::content);
+}
+
+cell get_editors() method_id {
+  load_data();
+  cell cs = begin_cell().store_slice(first(storage::editor_addresses))
+                        .store_slice(second(storage::editor_addresses))
+                        .store_slice(third(storage::editor_addresses))
+                        .end_cell();
+  return cs;
 }
