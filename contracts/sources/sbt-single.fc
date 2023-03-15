@@ -5,13 +5,14 @@
 #include "utils/stdlib.fc";
 #include "utils/op-codes.fc";
 #include "utils/params.fc";
+#include "utils/tuple.fc";
 
 int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
 global slice storage::owner_address;
 global cell storage::content;
 global tuple storage::editor_addresses;
-global slice storage::authority_address;
+global tuple storage::authority_address;
 global int storage::reclaim_at;
 
 () load_data() inline {
@@ -20,7 +21,7 @@ global int storage::reclaim_at;
   storage::owner_address      = ds~load_msg_addr();
   storage::content            = ds~load_ref();
   repeat(3) { tpush(storage::editor_addresses, ds~load_msg_addr()); }
-  storage::authority_address = ds~load_msg_addr();
+  repeat(3) { tpush(storage::authority_address, ds~load_msg_addr()); }
   storage::reclaim_at        = ds~load_uint(64);
 }
 
@@ -31,7 +32,9 @@ global int storage::reclaim_at;
                 .store_slice(first(storage::editor_addresses))
                 .store_slice(second(storage::editor_addresses))
                 .store_slice(third(storage::editor_addresses))
-                .store_slice(storage::authority_address)
+                .store_slice(first(storage::authority_address))
+                .store_slice(second(storage::authority_address))
+                .store_slice(third(storage::authority_address))
                 .store_uint(storage::reclaim_at, 64)
                 .end_cell()
   );
@@ -60,6 +63,20 @@ global int storage::reclaim_at;
   }
 
   send_raw_message(msg.end_cell(), send_mode);
+}
+
+() update_authorities(slice prev_owner) {
+  ;; check if there're exact 3 authority_address
+  throw_unless(430, tuples::tlen(storage::authority_address) != 3);
+
+  slice first = first(storage::editor_addresses);
+  slice second = second(storage::editor_addresses);
+  repeat(3) { tuples::tpop(storage::editor_addresses); }
+  tpush(storage::authority_address, prev_owner);
+  tpush(storage::authority_address, first);
+  tpush(storage::authority_address, second);
+
+  return ();
 }
 
 () transfer_ownership(
@@ -122,7 +139,8 @@ global int storage::reclaim_at;
       1
     ); ;; paying fees, revert on errors
   }
-
+  
+  update_authorities(new_owner_address);
   store_data();
 }
 
@@ -240,19 +258,28 @@ global int storage::reclaim_at;
     send_msg(flag::regular(), sender_address, 0, op::excesses(), query_id, null(), 128);
 
     storage::owner_address = null_addr();
-    storage::authority_address = null_addr();
+    repeat(3) { tuples::tpop(storage::authority_address); }
+    repeat(3) { tpush(storage::authority_address, null_addr()); }
     store_data();
     return ();
   }
   if (op == op::reclaim()) {
     throw_unless(401, 
-      equal_slice_bits(storage::owner_address, sender_address) |
-      equal_slice_bits(storage::authority_address, sender_address));
+      equal_slice_bits(sender_address, storage::owner_address) |
+      equal_slice_bits(sender_address, first(storage::authority_address)) |
+      equal_slice_bits(sender_address, second(storage::authority_address)) |
+      equal_slice_bits(sender_address, third(storage::authority_address)));
 
     throw_unless(403, now() >= storage::reclaim_at + 3600);
 
     storage::reclaim_at = now();
-    store_data();
+    transfer_ownership(
+      my_balance,
+      sender_address,
+      query_id,
+      in_msg_body,
+      fwd_fee
+    );
     return ();
   }
   if (op == op::take_excess()) {
@@ -290,7 +317,7 @@ cell get_editors() method_id {
   return cs;
 }
 
-slice get_authority_address() method_id {
+tuple get_authority_address() method_id {
   load_data();
   return storage::authority_address;
 }
