@@ -1,6 +1,6 @@
 import {Address, Cell} from "ton";
 import BN from "bn.js";
-import {encodeOffChainContent} from "../../nft-content/nftContent";
+import {encodeOffChainContent} from "../utils/nft-content/nftContent";
 import {Queries as CollectionQueries} from '../nft-collection/NftCollection.data'
 
 import {beginCell} from "ton/dist";

@@ -2,9 +2,9 @@ import {Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, Interna
 import {randomAddress} from "../utils/randomAddress";
 import {SbtItemData, SbtSingleData, OperationCodes, Queries} from "./SbtItem.data";
 import {SbtItemLocal} from "./SbtItemLocal";
-import {decodeOffChainContent} from "../../nft-content/nftContent";
+import {decodeOffChainContent} from "../utils/nft-content/nftContent";
 import {SendMsgAction} from "ton-contract-executor";
-import BN = require("bn.js");
+import BN from "bn.js";
 
 import {
     createPrivateKey

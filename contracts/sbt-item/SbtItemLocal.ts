@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import {SmartContract} from "ton-contract-executor";
 import {Address, Cell, CellMessage, CommonMessageInfo, contractAddress, InternalMessage, Slice, toNano} from "ton";
 import BN from "bn.js";
@@ -8,9 +10,7 @@ import {
     SbtSingleData,
     Queries
 } from "./SbtItem.data";
-import {SbtItemSource, SbtSingleSource} from "./SbtItem.source";
-import {decodeOffChainContent} from "../../nft-content/nftContent";
-import {compileFunc} from "../../utils/compileFunc";
+import {decodeOffChainContent} from "../utils/nft-content/nftContent";
 
 type NftDataResponse =
     | { isInitialized: false, index: number, collectionAddress: Address | null }
@@ -141,10 +141,10 @@ export class SbtItemLocal {
     }
 
     static async createFromConfig(config: SbtItemData) {
-        let code = await compileFunc(SbtItemSource)
+        let cell = Cell.fromBoc(fs.readFileSync(path.resolve(__dirname, "../build/sbt-single.cell")))[0]
 
         let data = buildSbtItemDataCell(config)
-        let contract = await SmartContract.fromCell(code.cell, data, {
+        let contract = await SmartContract.fromCell(cell, data, {
             debug: true
         })
 
@@ -163,10 +163,10 @@ export class SbtItemLocal {
     }
 
     static async createSingle(config: SbtSingleData) {
-        let code = await compileFunc(SbtSingleSource)
+        let cell = Cell.fromBoc(fs.readFileSync(path.resolve(__dirname, "../build/sbt-single.cell")))[0]
 
         let data = buildSingleSbtDataCell(config)
-        let contract = await SmartContract.fromCell(code.cell, data)
+        let contract = await SmartContract.fromCell(cell, data)
 
         let address = contractAddress({
             workchain: 0,
