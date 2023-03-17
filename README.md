@@ -14,9 +14,9 @@ Consequently, the ecosystem requires a utility NFT minting tool like The Open Pa
 ## Contract Documentations
 |     Contracts      | Feature Summary |
 |:-----------------:|:------- |
-|  [Redeemable NFT]()   | Similar to royalty, our redeemable NFT allows issuers to predefine their utility NFT redemption rules in the contract. To redeem their NFT, holders must sign a message authorizing the redemption. |
-| [Auto-upgraded NFT]() | The auto-upgrade NFT enables issuers to grant multiple contracts and wallet editorship. By issuing membership NFTs, the issuer can provide edit permissions to a smart contract that determines the membership level of NFT holders, allowing contracts to upgrade or downgrade membership levels. |
-|       [iSBT]()        | The incentivized soul-bound token enables users to transfer their SBTs among their personal addresses. Based on the game theory framework, they have no motivations to sell, rent, or lend their SBT in a trustless manner. |
+|  [Redeemable NFT](https://github.com/moven0831/The-One-Pass-HackaTON/tree/main/documentation/redeemable-nft)   | Similar to royalty, our redeemable NFT allows issuers to predefine their utility NFT redemption rules in the contract. To redeem their NFT, holders must sign a message authorizing the redemption. |
+| [Auto-upgraded NFT](https://github.com/moven0831/The-One-Pass-HackaTON/tree/main/documentation/autoUpgraded-nft) | The auto-upgrade NFT enables issuers to grant multiple contracts and wallet editorship. By issuing membership NFTs, the issuer can provide edit permissions to a smart contract that determines the membership level of NFT holders, allowing contracts to upgrade or downgrade membership levels. |
+|       [iSBT](https://github.com/moven0831/The-One-Pass-HackaTON/tree/main/documentation/iSBT)        | The incentivized soul-bound token enables users to transfer their SBTs among their personal addresses. Based on the game theory framework, they have no motivations to sell, rent, or lend their SBT in a trustless manner. |
 
 ## Common Use Cases
 
