@@ -27,14 +27,14 @@ Use Github to clone the repository using HTTPS, SSH, or GitHub CLI. Check the st
 # install requied packages
 yarn install
 
+# move to the contract directory
 cd contracts
 
-# Utilized MAKEFILE to achieve the following features
-
+### Utilized MAKEFILE to achieve the following features
 # Compile all Func files in source directory
 make compileAll
 
-# Compile a single Func files in source directory
+### Compile a single Func files in source directory
 # For example, make comileSinge iSBT-single
 make comileSinge FILENAME_YOU_WANT_TO_COMPILE
 
