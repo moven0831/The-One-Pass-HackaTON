@@ -26,4 +26,4 @@ There are also some get methods defined in the smart contract for off-chain acce
 
 - `get_nft_content()`: Get the content associated with the token. This method retrieves the content of a specific NFT by its index. It takes two arguments - an integer index and a cell individual_nft_content.
 - `get_editors()`: Get the editor addresses.
-- `redeemable_index`: This method returns the redeemable index for an NFT.
+- `get_remained_redeemable_index`: This method returns the redeemable index for an NFT.
