@@ -10,12 +10,14 @@
 ;;  Storage
 ;;
 ;;  MsgAddressInt owner_address
+;;  uint256 owner_public_key
 ;;  cell content
 ;;  MsgAddressInt authority_address
 ;;  uint256 authority_public_key
 ;;  tuple[MsgAddressInt] editor_addresses
 ;;  tuple[MsgAddressInt] prev_owner_address
 ;;  uint64 reclaim_at
+;;  uint16 remained_redeemable_index
 ;;
 
 #include "utils/stdlib.fc";
@@ -26,28 +28,33 @@
 int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
 global slice storage::owner_address;
+global int storage::owner_public_key;
 global cell storage::content;
 global slice storage::authority_address;
 global int storage::authority_public_key;
 global tuple storage::editor_addresses;
 global tuple storage::prev_owner_address;
 global int storage::reclaim_at;
+global int storage::remained_redeemable_index;
 
 () load_data() inline {
   var ds = get_data().begin_parse();
   
-  storage::owner_address          = ds~load_msg_addr();
-  storage::content                = ds~load_ref();
-  storage::authority_address      = ds~load_msg_addr();
-  storage::authority_public_key   = ds~load_uint(256);
+  storage::owner_address                  = ds~load_msg_addr();
+  storage::owner_public_key               = ds~load_uint(256);
+  storage::content                        = ds~load_ref();
+  storage::authority_address              = ds~load_msg_addr();
+  storage::authority_public_key           = ds~load_uint(256);
   repeat(3) { tpush(storage::editor_addresses, ds~load_msg_addr()); }
   repeat(3) { tpush(storage::prev_owner_address, ds~load_msg_addr()); }
-  storage::reclaim_at             = ds~load_uint(64);
+  storage::reclaim_at                     = ds~load_uint(64);
+  storage::remained_redeemable_index      = ds~load_uint(16);
 }
 
 () store_data() impure inline {
   set_data(
     begin_cell().store_slice(storage::owner_address)
+                .store_uint(storage::owner_public_key, 256)
                 .store_ref(storage::content)
                 .store_slice(storage::authority_address)
                 .store_uint(storage::authority_public_key, 256)
@@ -58,6 +65,7 @@ global int storage::reclaim_at;
                 .store_slice(second(storage::prev_owner_address))
                 .store_slice(third(storage::prev_owner_address))
                 .store_uint(storage::reclaim_at, 64)
+                .store_uint(storage::remained_redeemable_index, 16)
                 .end_cell()
   );
 }
@@ -122,6 +130,9 @@ global int storage::reclaim_at;
   in_msg_body~load_int(1); ;; this nft don't use custom_payload
   int forward_amount = in_msg_body~load_coins();
 
+  ;; get new owner's public key
+  int new_owner_public_key = in_msg_body~load_uint(256);
+
   int rest_amount = my_balance - min_tons_for_storage();
   if (forward_amount) {
     rest_amount -= (forward_amount + fwd_fees);
@@ -164,7 +175,7 @@ global int storage::reclaim_at;
   
   update_previous_owner(storage::owner_address);
   storage::owner_address = new_owner_address;
-
+  storage::owner_public_key = new_owner_public_key;
   store_data();
 }
 
@@ -276,6 +287,16 @@ global int storage::reclaim_at;
     store_data();
     return ();
   }
+  if (op == op::redeem()) {
+    slice ref = in_msg_body~load_ref().begin_parse();
+    var signature = ref~load_bits(512);
+    throw_unless(404, check_signature(slice_hash(in_msg_body), signature, storage::owner_public_key));
+    throw_unless(433, storage::remained_redeemable_index > 0);
+
+    storage::remained_redeemable_index -= 1;
+    store_data();
+    return ();
+  }
   if (op == op::reclaim()) {
     if (equal_slice_bits(sender_address, storage::authority_address)) {
       slice ref = in_msg_body~load_ref().begin_parse();
@@ -315,6 +336,11 @@ global int storage::reclaim_at;
 }
 
 ;; Get methods
+
+int remained_redeemable_index() method_id {
+  load_data();
+  return storage::remained_redeemable_index;
+}
 
 cell get_nft_content(int index, cell individual_nft_content) method_id {
   load_data();
