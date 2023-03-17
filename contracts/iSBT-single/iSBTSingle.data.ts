@@ -1,7 +1,7 @@
 import {Address, Cell} from "ton";
 import BN from "bn.js";
-import {encodeOffChainContent} from "../../nft-content/nftContent";
-import {Queries as CollectionQueries} from '../nft-collection/NftCollection.data'
+import {encodeOffChainContent} from "../utils/nft-content/nftContent";
+import {Queries as CollectionQueries} from '../autoUpgrade-nft-collection/autoUpgradeNftCollection.data'
 
 import {beginCell} from "ton/dist";
 
@@ -75,7 +75,7 @@ export const OperationCodes = {
     OwnerInfo: 0x0dd607e3,
     TakeExcess: 0xd136d3b3,
     Destroy: 0x1f04537a,
-    Revoke: 0x6f89f5e3
+    Reclaim: 0x568af5e7
 }
 
 export const Queries = {
@@ -99,7 +99,7 @@ export const Queries = {
     },
     revoke: (params: { queryId?: number}) => {
         let msgBody = new Cell()
-        msgBody.bits.writeUint(OperationCodes.Revoke, 32)
+        msgBody.bits.writeUint(OperationCodes.Reclaim, 32)
         msgBody.bits.writeUint(params.queryId || 0, 64)
         return msgBody
     },

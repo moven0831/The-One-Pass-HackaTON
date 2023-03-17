@@ -1,14 +1,10 @@
 ;;
-;;  Upgradable TON NFT Item Smart Contract - Item
+;;  The Open Pass @ Hack-a-TONx
+;;  TON redeemable NFT Smart Contract - Item
 ;;  ---
-;;  Editor address can upgrade NFT's content
+;;  Similar to royalty, our redeemable NFT allows issuers to predefine their utility NFT redemption rules in the contract.
+;;  To redeem their NFT, holders must sign a message authorizing the redemption.
 ;;
-
-#include "utils/stdlib.fc";
-#include "utils/op-codes.fc";
-#include "utils/params.fc";
-
-int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
 ;;
 ;;  Storage
@@ -16,17 +12,25 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 ;;  uint64 index
 ;;  MsgAddressInt collection_address
 ;;  MsgAddressInt owner_address
+;;  uint256 owner_public_key
 ;;  cell content
-;;  MsgAddressInt editor_address
+;;  uint16 remained_redeemable_index
 ;;
+
+#include "utils/stdlib.fc";
+#include "utils/op-codes.fc";
+#include "utils/params.fc";
+
+
+int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
 global int storage::index;
 global slice storage::collection_address;
 global int temp::init?;
 global slice storage::owner_address;
-global tuple storage::editor_addresses;
+global int storage::owner_public_key;
 global cell storage::content;
-global int storage::remained_voucher_index;
+global int storage::remained_redeemable_index;
 
 
 () load_data() {
@@ -39,15 +43,15 @@ global int storage::remained_voucher_index;
     ;; Successfully init
     if (temp::init?) {
       storage::owner_address = ds~load_msg_addr();
-      repeat(3) { tpush(storage::editor_addresses, ds~load_msg_addr()); }
+      storage::owner_public_key = ds~load_uint(256);
       storage::content = ds~load_ref();
-      storage::remained_voucher_index = ds~load_uint(8);
+      storage::remained_redeemable_index = ds~load_uint(16);
     }
     else {
       storage::owner_address = null();
-      repeat(3) { tpush(storage::editor_addresses, null()); }
+      storage::owner_public_key = null();
       storage::content = null();
-      storage::remained_voucher_index = null();
+      storage::remained_redeemable_index = null();
     }
 }
 
@@ -56,11 +60,9 @@ global int storage::remained_voucher_index;
     begin_cell().store_uint(storage::index, 64)
                 .store_slice(storage::collection_address)
                 .store_slice(storage::owner_address)
-                .store_slice(first(storage::editor_addresses))
-                .store_slice(second(storage::editor_addresses))
-                .store_slice(third(storage::editor_addresses))
+                .store_uint(storage::owner_public_key, 256)
                 .store_ref(storage::content)
-                .store_uint(storage::remained_voucher_index, 8)
+                .store_uint(storage::remained_redeemable_index, 16)
                 .end_cell());
 }
 
@@ -107,6 +109,9 @@ global int storage::remained_voucher_index;
     in_msg_body~load_int(1); ;; this nft don't use custom_payload
     int forward_amount = in_msg_body~load_coins();
 
+    ;; get new owner's public key
+    int new_owner_public_key = in_msg_body~load_uint(256);
+
     int rest_amount = my_balance - min_tons_for_storage();
     if (forward_amount) {
       rest_amount -= (forward_amount + fwd_fees);
@@ -145,6 +150,8 @@ global int storage::remained_voucher_index;
       ); ;; paying fees, revert on errors
     }
 
+    storage::owner_address = new_owner_address;
+    storage::owner_public_key = new_owner_public_key;
     store_data();
 }
 
@@ -173,9 +180,8 @@ global int storage::remained_voucher_index;
       throw_unless(405, equal_slice_bits(sender_address, storage::collection_address));
       
       storage::owner_address = cs~load_msg_addr();
-      repeat(3) { tpush(storage::editor_addresses, cs~load_msg_addr()); }
       storage::content = cs~load_ref();
-      storage::remained_voucher_index = cs~load_uint(8);
+      storage::remained_redeemable_index = cs~load_uint(8);
 
       store_data();
       return ();
@@ -207,13 +213,13 @@ global int storage::remained_voucher_index;
       );
       return ();
     }
-    if (op == op::edit_content()) {
-      throw_unless(410,
-        equal_slice_bits(sender_address, first(storage::editor_addresses)) |
-        equal_slice_bits(sender_address, second(storage::editor_addresses)) |
-        equal_slice_bits(sender_address, third(storage::editor_addresses)));
-      
-      storage::content = in_msg_body~load_ref();
+    if (op == op::redeem()) {
+      slice ref = in_msg_body~load_ref().begin_parse();
+      var signature = ref~load_bits(512);
+      throw_unless(404, check_signature(slice_hash(in_msg_body), signature, storage::owner_public_key));
+      throw_unless(433, storage::remained_redeemable_index > 0);
+
+      storage::remained_redeemable_index -= 1;
       store_data();
       return ();
     }
@@ -224,16 +230,12 @@ global int storage::remained_voucher_index;
 ;;  GET Methods
 ;;
 
+int get_remained_redeemable_index() method_id {
+  load_data();
+  return storage::remained_redeemable_index;
+}
+
 (int, int, slice, slice, cell) get_nft_data() method_id {
   load_data();
   return (temp::init?, storage::index, storage::collection_address, storage::owner_address, storage::content);
-}
-
-cell get_editors() method_id {
-  load_data();
-  cell cs = begin_cell().store_slice(first(storage::editor_addresses))
-                        .store_slice(second(storage::editor_addresses))
-                        .store_slice(third(storage::editor_addresses))
-                        .end_cell();
-  return cs;
 }
