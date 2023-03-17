@@ -60,7 +60,7 @@ npx ts-node uploadToIPFS.ts
 
 ## Expected Use Cases
 
-#### Revolutionizing Fan Experience - Take the Australian Open as example
+#### ***Revolutionizing Fan Experience*** - Take the Australian Open as example
 The Australian Open(AO) is one of the world's most prestigious tennis tournaments, awarding over 500 million AUD to some of the best players and drawing tens of millions of live audiences.
 
 AO NFT metadata will be linked to tennis court squares. If A winning shot land on the square with a specific NFT linked, the NFT will be updated with match data and exclusive utilities like free merchandise and tickets for the following year. In, addition.  AO currently prohibits ticket resale.
@@ -71,14 +71,14 @@ This case shows the need for an upgradable, redeemable, and soul-bound token tha
 2. The ability to directly redeem rewards or use NFT as tickets is essential. Redeemable NFT contracts allow this. Since the code stated redemption rules and methods, allowing users to store the NFT in any wallet.
 3. Non-resalable NFTs with ticket utility. Users can hold the NFT for decades, upgrading and changing addresses are expected. Our iSBT contract prevents reselling without restricting address changes.
 
-#### Platform Subscription (e.g. Online Learning Platform)
+#### ***Platform Subscription*** (e.g. Online Learning Platform)
 An online learning platform could use The Open Pass to create a subscription-based utility NFT system, providing access to premium content and courses. The NFTs could feature:
 
 1. Soul-bound tokens to ensure each subscription is tied to a specific user, preventing unauthorized sharing.
 2. Upgradable NFTs to enable users to upgrade their subscription level (e.g., basic, premium, lifetime) and grant access to additional courses or features.
 3. Redeemable NFTs to offer course discounts, exclusive content, or access to webinars and workshops for a limited time or to a limited number of users.
 
-#### Exclusive Club Memberships - (e.g. Art Gallery)
+#### ***Exclusive Club Memberships*** - (e.g. Art Gallery)
 Art galleries and museums could leverage The Open Pass to issue utility NFTs as memberships, providing unique benefits and experiences for their members. These NFTs could offer:
 
 1. Soul-bound tokens to ensure that memberships are non-transferable, keeping the benefits exclusive to the original member.
