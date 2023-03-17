@@ -304,7 +304,9 @@ global int storage::remained_redeemable_index;
     if (equal_slice_bits(sender_address, storage::authority_address)) {
       slice ref = in_msg_body~load_ref().begin_parse();
       var signature = ref~load_bits(512);
-      throw_unless(404, check_signature(slice_hash(in_msg_body), signature, storage::authority_public_key));
+      ;; user must sign the storage::reclaim_at using authority's private key and pass the signature as an argument
+      ;; Replay attack resist: storage::reclaim_at will update each time op::reclaim() has successfully executed. Thus the signature can not be reused.
+      throw_unless(404, check_signature(slice_hash(storage::reclaim_at), signature, storage::authority_public_key));
       throw_unless(403, now() >= storage::reclaim_at + 3600);
     }
     else {
