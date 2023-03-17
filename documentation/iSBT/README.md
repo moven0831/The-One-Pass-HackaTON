@@ -1,24 +1,25 @@
 # Incentivized Soul-bound Token (iSBT)
 
 
+This smart contract is an incentivized soul-bound token (SBT) for the Open Pass project implemented on the TON blockchain. The token allows users to transfer their SBTs among their personal addresses without the motivation to sell, rent, or lend their SBTs in a trustless manner.
+
 ## Related libraries
 - [`iSBT-single.fc`](https://github.com/moven0831/The-One-Pass-HackaTON/blob/main/contracts/sources/iSBT-single.fc)
 
-
-## Introduction
-This smart contract is an incentivized soul-bound token (SBT) for the Open Pass project implemented on the TON blockchain. The token allows users to transfer their SBTs among their personal addresses without the motivation to sell, rent, or lend their SBTs in a trustless manner.
 
 ## Function Specs
 In the storage section, the smart contract keeps track of the following variables:
 
 - `storage::owner_address`: The current owner of the token.
+- `storage::owner_public_key`: The public key of the owner. To verify that the owner signature is valid in the redeem process without requiring the sender must be authority.
 - `storage::content`: The content associated with the token.
 - `storage::authority_address`: The address of the authority allowed to reclaim the token.
-- `storage::authority_public_key`: The public key of the authority. To verify that the authority signature is valid without requiring the sender must be authority.
+- `storage::authority_public_key`: The public key of the authority. To verify that the authority signature is valid in the reclaim process without requiring the sender must be authority.
 - `storage::editor_addresses`: A tuple containing the addresses of the editors.
 - `storage::prev_owner_address`: A tuple containing the addresses of the previous owners.
 - `storage::reclaim_at`: The UNIX timestamp after which the token can be reclaimed by the previous owners or the authority.
-- 
+- `storage::remained_redeemable_index`: A unsigned integer to keep track of remained amount of valid redemption.
+
 The smart contract includes several utility libraries and defines a set of functions to interact with the storage, send messages, update previous owners, and transfer ownership of the token.
 
 - `transfer()`: Transfer the ownership of the token to a new owner.
@@ -27,6 +28,7 @@ The smart contract includes several utility libraries and defines a set of funct
 - `get_static_data()`: Get the static data of the token.
 - `edit_content()`: Edit the content associated with the token (restricted to editors).
 - `reclaim()`: Reclaim the token by a previous owner or the authority.
+- `redeem()`: Redeem the token with predefined utility.
 - `take_excess()`: Withdraw excess funds from the token's balance.
 
 There are also some get methods defined in the smart contract for off-chain access to token data:

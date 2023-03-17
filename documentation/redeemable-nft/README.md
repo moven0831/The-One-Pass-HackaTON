@@ -1,13 +1,12 @@
 # Redeemable NFT
 
 
+The redeemable NFT feature in the Open Pass minting tool allows issuers to predefine utility NFT redemption rules, similar to setting royalties. NFT holders can redeem their NFTs by signing a message authorizing the redemption based on the specified rules. This process can be carried out off-chain, with issuers encouraged to build their own databases to prevent double-spending attacks. This design aims to enhance user experience when using NFTs as vouchers.
+
 ## Related libraries
 - [`redeemable-nft-collection.fc`](https://github.com/moven0831/The-One-Pass-HackaTON/blob/main/contracts/sources/redeemable-nft-collection.fc)
 - [`redeemable-nft-item.fc`](https://github.com/moven0831/The-One-Pass-HackaTON/blob/main/contracts/sources/redeemable-nft-item.fc)
 - [`redeemable-nft-single.fc`](https://github.com/moven0831/The-One-Pass-HackaTON/blob/main/contracts/sources/redeemable-nft-single.fc)
-
-## Introduction
-The redeemable NFT feature in the Open Pass minting tool allows issuers to predefine utility NFT redemption rules, similar to setting royalties. NFT holders can redeem their NFTs by signing a message authorizing the redemption based on the specified rules. This process can be carried out off-chain, with issuers encouraged to build their own databases to prevent double-spending attacks. This design aims to enhance user experience when using NFTs as vouchers.
 
 
 ## Function Specs
