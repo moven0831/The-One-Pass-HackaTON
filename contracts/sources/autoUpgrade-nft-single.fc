@@ -204,7 +204,9 @@ global int storage::remained_redeemable_index;
   if (op == op::redeem()) {
     slice ref = in_msg_body~load_ref().begin_parse();
     var signature = ref~load_bits(512);
-    throw_unless(404, check_signature(slice_hash(in_msg_body), signature, storage::owner_public_key));
+    ;; user must get the signature of the storage::remained_redeemable_index using authority's private key and pass the signature as an argument
+    ;; Replay attack resist: storage::remained_redeemable_index will update each time op::redeem() has successfully executed. Thus the signature can not be reused.
+    throw_unless(404, check_signature(slice_hash(storage::remained_redeemable_index), signature, storage::owner_public_key));
     throw_unless(433, storage::remained_redeemable_index > 0);
 
     storage::remained_redeemable_index -= 1;
