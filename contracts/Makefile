@@ -1,14 +1,34 @@
+# Makefile
+
+# Directories
+SOURCE_DIR := ./sources
+DEST_DIR := ./build
+
+# Compile command setting
+COMPILE_CMD := npx func-js
+
+# Source and object files
+SRC_FILES := $(wildcard $(SOURCE_DIR)/*.fc)
+OBJ_FILES := $(patsubst $(SOURCE_DIR)/%.fc, $(DEST_DIR)/%.cell, $(SRC_FILES))
+
+# Comile all .fc files in sources
+.PHONY: compileAll
+compileAll: $(OBJ_FILES)
+	@echo "All files compiled and binaries placed in $(DEST_DIR) directory."
+
+$(DEST_DIR)/%.cell: $(SOURCE_DIR)/%.fc
+	$(COMPILE_CMD) $< --boc $@
+
+
+# Compile a single Func file
+.PHONY: compileSingle
+compileSingle: FILE=$(word 2, $(MAKECMDGOALS))
 compileSingle:
-	npx func-js sources/$1.fc --boc build/$1.cell
+	$(COMPILE_CMD) $(SOURCE_DIR)/$(FILE).fc --boc $(DEST_DIR)/$(FILE).cell
 
-compileAll:
-	find build/ -name "*.cell" -type f | xargs rm -f
-	# find sources/ -name "*.fc" -type f | xargs -I % sh -c 'npx func-js % --boc %.cell'
 
-	npx func-js sources/redeemable-nft-collection.fc --boc build/redeemable-nft-collection.cell
-	npx func-js sources/redeemable-nft-item.fc --boc build/redeemable-nft-item.cell
-	npx func-js sources/redeemable-nft-single.fc --boc build/redeemable-nft-single.cell
-	npx func-js sources/autoUpgrade-nft-collection.fc --boc build/autoUpgrade-nft-collection.cell
-	npx func-js sources/autoUpgrade-nft-item.fc --boc build/autoUpgrade-nft-item.cell
-	npx func-js sources/autoUpgrade-nft-single.fc --boc build/autoUpgrade-nft-single.cell
-	npx func-js sources/iSBT-single.fc --boc build/iSBT-single.cell
+# Clean target
+.PHONY: clean
+clean:
+	rm -rf $(DEST_DIR)/*.cell
+	@echo "All files in $(DEST_DIR) directory have been removed."

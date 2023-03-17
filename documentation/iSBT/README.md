@@ -37,3 +37,4 @@ There are also some get methods defined in the smart contract for off-chain acce
 - `get_editors()`: Get the editor addresses.
 - `get_authority_address()`: Get the authority address.
 - `get_reclaim_time()`: Get the reclaim timestamp.
+- `get_remained_redeemable_index`: This method returns the redeemable index for an NFT.

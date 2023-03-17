@@ -24,10 +24,22 @@ Consequently, the ecosystem requires a utility NFT minting tool like The Open Pa
 Use Github to clone the repository using HTTPS, SSH, or GitHub CLI. Check the standalone FunC contracts for The Open Pass features.
 
 ```{bash}
-# Example using HTTPS
-git clone https://github.com/moven0831/The-One-Pass-HackaTON.git
+# install requied packages
+yarn install
 
+# move to the contract directory
 cd contracts
+
+### Utilized MAKEFILE to achieve the following features
+# Compile all Func files in source directory
+make compileAll
+
+### Compile a single Func files in source directory
+# For example, make comileSinge iSBT-single
+make comileSinge FILENAME_YOU_WANT_TO_COMPILE
+
+# Clean all of the cell files in build directory
+make clean
 ```
 
 #### Available NFT libraries
@@ -55,13 +67,13 @@ npx ts-node uploadToIPFS.ts
 |     Contracts      | Feature Summary |
 |:-----------------:|:------- |
 |  [Redeemable NFT](https://github.com/moven0831/The-One-Pass-HackaTON/tree/main/documentation/redeemable-nft)   | Similar to royalty, our redeemable NFT allows issuers to predefine their utility NFT redemption rules in the contract. To redeem their NFT, holders must sign a message authorizing the redemption. |
-| [Auto-upgraded NFT](https://github.com/moven0831/The-One-Pass-HackaTON/tree/main/documentation/autoUpgraded-nft) | The auto-upgrade NFT enables issuers to grant multiple contracts and wallet editorship. By issuing membership NFTs, the issuer can provide edit permissions to a smart contract that determines the membership level of NFT holders, allowing contracts to upgrade or downgrade membership levels. |
+| [Auto-upgraded NFT](https://github.com/moven0831/The-One-Pass-HackaTON/tree/main/documentation/autoUpgraded-nft) | The auto-upgraded NFT enables issuers to grant multiple contracts and wallet editorship. By issuing membership NFTs, the issuer can provide edit permissions to a smart contract that determines the membership level of NFT holders, allowing contracts to upgrade or downgrade membership levels. |
 |       [iSBT](https://github.com/moven0831/The-One-Pass-HackaTON/tree/main/documentation/iSBT)        | The incentivized soul-bound token enables users to transfer their SBTs among their personal addresses. Based on the game theory framework, they have no motivations to sell, rent, or lend their SBT in a trustless manner. |
 
 ## Expected Use Cases
 
 #### 1️⃣ ***Revolutionizing Fan Experience*** - Take the Australian Open as example
-The Australian Open(AO) is one of the world's most prestigious tennis tournaments, awarding over 500 million AUD to some of the best players and drawing tens of millions of live audiences.
+The Australian Open (AO) is one of the world's most prestigious tennis tournaments, awarding over 500 million AUD to some of the best players and drawing tens of millions of live audiences.
 
 AO NFT metadata will be linked to tennis court squares. If A winning shot land on the square with a specific NFT linked, the NFT will be updated with match data and exclusive utilities like free merchandise and tickets for the following year. In, addition.  AO currently prohibits ticket resale.
 
