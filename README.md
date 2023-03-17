@@ -1,11 +1,11 @@
 <div align="center">
   <a href="https://ton.org">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://ipfs.moralis.io:2053/ipfs/QmXoQdeok1nUfHSMxCEeQ7kE3wkeyZrX4TpEhEQurJ87Z6/The_Open_Pass_Logo_Dune.svg">
-      <img alt="TOP logo" src="https://ipfs.moralis.io:2053/ipfs/QmXoQdeok1nUfHSMxCEeQ7kE3wkeyZrX4TpEhEQurJ87Z6/The_Open_Pass_Logo_Dune.svg">
+      <source media="(prefers-color-scheme: dark)" srcset="https://ipfs.moralis.io:2053/ipfs/QmVEBZfuopskn43N36jz4CdNEkvvorRmQp2B4cyjkpMPTj/the_open_pass_dune.svg">
+      <img alt="TOP logo" src="https://ipfs.moralis.io:2053/ipfs/QmVEBZfuopskn43N36jz4CdNEkvvorRmQp2B4cyjkpMPTj/the_open_pass_dune.svg">
     </picture>
   </a>
-  <h3>Redeemable NFT, Auto-upgraded NFT, iSBT</h3>
+  <h3>Redeemable NFT, Auto-upgraded NFT, Incentivized SBT</h3>
   <hr/>
 </div>
 
