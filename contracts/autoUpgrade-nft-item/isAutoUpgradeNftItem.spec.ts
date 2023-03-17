@@ -1,5 +1,5 @@
 import {Address, Cell, TonClient} from "ton";
-import {isNftItemContract} from "./isNftItemContract";
+import {isNftItemContract} from "./isAutoUpgradeNftItem";
 
 describe('nft detector', () => {
     it('should detect nft', async () => {

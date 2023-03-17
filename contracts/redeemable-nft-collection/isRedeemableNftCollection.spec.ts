@@ -1,5 +1,5 @@
 import {Address, Cell, TonClient} from "ton";
-import {isNftCollectionContract} from "./isNftCollectionContract";
+import {isNftCollectionContract} from "./isRedeemableNftCollection";
 import {SmartContract} from "ton-contract-executor";
 
 describe('collection detector', () => {

@@ -3,7 +3,7 @@ import path from 'path';
 import {Address, Cell, contractAddress, StateInit} from "ton";
 import BN from "bn.js";
 import {encodeOffChainContent} from "../utils/nft-content/nftContent";
-import {Queries as CollectionQueries} from '../nft-collection/NftCollection.data'
+import {Queries as CollectionQueries} from '../autoUpgrade-nft-collection/autoUpgradeNftCollection.data'
 
 // upgradable NFTItem related code is missing
 

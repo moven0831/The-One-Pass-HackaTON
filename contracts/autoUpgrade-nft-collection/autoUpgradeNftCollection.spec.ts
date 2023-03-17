@@ -1,6 +1,6 @@
-import {CollectionMintItemInput, NftCollectionData, OperationCodes} from "./NftCollection.data";
+import {CollectionMintItemInput, NftCollectionData, OperationCodes} from "./autoUpgradeNftCollection.data";
 import {Cell, CellMessage, CommonMessageInfo, contractAddress, ExternalMessage, toNano, TonClient} from "ton";
-import {NftCollectionLocal} from "./NftCollectionLocal";
+import {NftCollectionLocal} from "./autoUpgradeNftCollection";
 import {randomAddress} from "../utils/randomAddress";
 import {SendMsgAction} from "ton-contract-executor";
 

@@ -5,10 +5,10 @@ compileAll:
 	find build/ -name "*.cell" -type f | xargs rm -f
 	# find sources/ -name "*.fc" -type f | xargs -I % sh -c 'npx func-js % --boc %.cell'
 
-	npx func-js sources/nft-collection.fc --boc build/nft-collection.cell
-	npx func-js sources/nft-item.fc --boc build/nft-item.cell
-	npx func-js sources/nft-single.fc --boc build/nft-single.cell
-	npx func-js sources/sbt-single.fc --boc build/sbt-single.cell
-	npx func-js sources/upgradable-nft-collection.fc --boc build/upgradable-nft-collection.cell
-	npx func-js sources/upgradable-nft-item.fc --boc build/upgradable-nft-item.cell
-	npx func-js sources/upgradable-nft-single.fc --boc build/upgradable-nft-single.cell
+	npx func-js sources/redeemable-nft-collection.fc --boc build/redeemable-nft-collection.cell
+	npx func-js sources/redeemable-nft-item.fc --boc build/redeemable-nft-item.cell
+	npx func-js sources/redeemable-nft-single.fc --boc build/redeemable-nft-single.cell
+	npx func-js sources/autoUpgrade-nft-collection.fc --boc build/autoUpgrade-nft-collection.cell
+	npx func-js sources/autoUpgrade-nft-item.fc --boc build/autoUpgrade-nft-item.cell
+	npx func-js sources/autoUpgrade-nft-single.fc --boc build/autoUpgrade-nft-single.cell
+	npx func-js sources/iSBT-single.fc --boc build/iSBT-single.cell

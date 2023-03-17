@@ -1,5 +1,21 @@
 ;;
-;;  TON SBT Smart Contract - Single
+;;  The Open Pass @ Hack-a-TONx
+;;  TON Incentivized SBT Smart Contract - Single
+;;  ---
+;;  The incentivized soul-bound token enables users to transfer their SBTs among their personal addresses.
+;;  Based on the game theory framework, they have no motivations to sell, rent, or lend their SBT in a trustless manner.
+;;
+
+;;
+;;  Storage
+;;
+;;  MsgAddressInt owner_address
+;;  cell content
+;;  MsgAddressInt authority_address
+;;  uint256 authority_public_key
+;;  tuple[MsgAddressInt] editor_addresses
+;;  tuple[MsgAddressInt] prev_owner_address
+;;  uint64 reclaim_at
 ;;
 
 #include "utils/stdlib.fc";
@@ -11,30 +27,36 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
 global slice storage::owner_address;
 global cell storage::content;
+global slice storage::authority_address;
+global int storage::authority_public_key;
 global tuple storage::editor_addresses;
-global tuple storage::authority_address;
+global tuple storage::prev_owner_address;
 global int storage::reclaim_at;
 
 () load_data() inline {
   var ds = get_data().begin_parse();
   
-  storage::owner_address      = ds~load_msg_addr();
-  storage::content            = ds~load_ref();
+  storage::owner_address          = ds~load_msg_addr();
+  storage::content                = ds~load_ref();
+  storage::authority_address      = ds~load_msg_addr();
+  storage::authority_public_key   = ds~load_uint(256);
   repeat(3) { tpush(storage::editor_addresses, ds~load_msg_addr()); }
-  repeat(3) { tpush(storage::authority_address, ds~load_msg_addr()); }
-  storage::reclaim_at        = ds~load_uint(64);
+  repeat(3) { tpush(storage::prev_owner_address, ds~load_msg_addr()); }
+  storage::reclaim_at             = ds~load_uint(64);
 }
 
 () store_data() impure inline {
   set_data(
     begin_cell().store_slice(storage::owner_address)
                 .store_ref(storage::content)
+                .store_slice(storage::authority_address)
+                .store_uint(storage::authority_public_key, 256)
                 .store_slice(first(storage::editor_addresses))
                 .store_slice(second(storage::editor_addresses))
                 .store_slice(third(storage::editor_addresses))
-                .store_slice(first(storage::authority_address))
-                .store_slice(second(storage::authority_address))
-                .store_slice(third(storage::authority_address))
+                .store_slice(first(storage::prev_owner_address))
+                .store_slice(second(storage::prev_owner_address))
+                .store_slice(third(storage::prev_owner_address))
                 .store_uint(storage::reclaim_at, 64)
                 .end_cell()
   );
@@ -65,16 +87,16 @@ global int storage::reclaim_at;
   send_raw_message(msg.end_cell(), send_mode);
 }
 
-() update_authorities(slice prev_owner) {
-  ;; check if there're exact 3 authority_address
-  throw_unless(430, tuples::tlen(storage::authority_address) != 3);
+() update_previous_owner(slice prev_owner) {
+  ;; check if there're exact 3 prev_owner_address
+  throw_unless(430, tuples::tlen(storage::prev_owner_address) != 3);
 
   slice first = first(storage::editor_addresses);
   slice second = second(storage::editor_addresses);
   repeat(3) { tuples::tpop(storage::editor_addresses); }
-  tpush(storage::authority_address, prev_owner);
-  tpush(storage::authority_address, first);
-  tpush(storage::authority_address, second);
+  tpush(storage::prev_owner_address, prev_owner);
+  tpush(storage::prev_owner_address, first);
+  tpush(storage::prev_owner_address, second);
 
   return ();
 }
@@ -140,7 +162,9 @@ global int storage::reclaim_at;
     ); ;; paying fees, revert on errors
   }
   
-  update_authorities(new_owner_address);
+  update_previous_owner(storage::owner_address);
+  storage::owner_address = new_owner_address;
+
   store_data();
 }
 
@@ -252,25 +276,21 @@ global int storage::reclaim_at;
     store_data();
     return ();
   }
-  if (op == op::destroy()) {
-    throw_unless(401, equal_slice_bits(storage::owner_address, sender_address));
-    
-    send_msg(flag::regular(), sender_address, 0, op::excesses(), query_id, null(), 128);
-
-    storage::owner_address = null_addr();
-    repeat(3) { tuples::tpop(storage::authority_address); }
-    repeat(3) { tpush(storage::authority_address, null_addr()); }
-    store_data();
-    return ();
-  }
   if (op == op::reclaim()) {
-    throw_unless(401, 
-      equal_slice_bits(sender_address, storage::owner_address) |
-      equal_slice_bits(sender_address, first(storage::authority_address)) |
-      equal_slice_bits(sender_address, second(storage::authority_address)) |
-      equal_slice_bits(sender_address, third(storage::authority_address)));
-
-    throw_unless(403, now() >= storage::reclaim_at + 3600);
+    if (equal_slice_bits(sender_address, storage::authority_address)) {
+      slice ref = in_msg_body~load_ref().begin_parse();
+      var signature = ref~load_bits(512);
+      throw_unless(404, check_signature(slice_hash(in_msg_body), signature, storage::authority_public_key));
+      throw_unless(403, now() >= storage::reclaim_at + 3600);
+    }
+    else {
+      throw_unless(401, 
+        equal_slice_bits(sender_address, first(storage::prev_owner_address)) |
+        equal_slice_bits(sender_address, second(storage::prev_owner_address)) |
+        equal_slice_bits(sender_address, third(storage::prev_owner_address)));
+    }
+    ;; current owner cannot reclaim the sbt since he already owns it
+    throw_unless(401, equal_slice_bits(sender_address, storage::owner_address));
 
     storage::reclaim_at = now();
     transfer_ownership(
@@ -319,7 +339,7 @@ cell get_editors() method_id {
 
 tuple get_authority_address() method_id {
   load_data();
-  return storage::authority_address;
+  return storage::prev_owner_address;
 }
 
 int get_reclaim_time() method_id {

@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from 'path';
 import {SmartContract} from "ton-contract-executor";
-import {buildNftCollectionDataCell, CollectionMintItemInput, NftCollectionData, Queries, RoyaltyParams} from "./NftCollection.data";
+import {buildNftCollectionDataCell, CollectionMintItemInput, NftCollectionData, Queries, RoyaltyParams} from "./autoUpgradeNftCollection.data";
 import {Address, Cell, CellMessage, CommonMessageInfo, contractAddress, InternalMessage, Slice, toNano} from "ton";
 import BN from "bn.js";
 import {decodeOffChainContent} from "../utils/nft-content/nftContent";

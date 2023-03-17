@@ -1,7 +1,7 @@
 import {Cell, CellMessage, CommonMessageInfo, ExternalMessage, InternalMessage, toNano} from "ton";
 import {randomAddress} from "../utils/randomAddress";
-import {NftItemData, NftSingleData, OperationCodes, Queries} from "./NftItem.data";
-import {NftItemLocal} from "./NftItemLocal";
+import {NftItemData, NftSingleData, OperationCodes, Queries} from "./redeemableNftItem.data";
+import {NftItemLocal} from "./redeemableNftItem.local";
 import {decodeOffChainContent} from "../utils/nft-content/nftContent";
 import {SendMsgAction} from "ton-contract-executor";
 
