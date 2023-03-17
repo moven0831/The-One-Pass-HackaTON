@@ -99,6 +99,9 @@ global int storage::remained_redeemable_index;
   ;; check if there're exact 3 prev_owner_address
   throw_unless(430, tuples::tlen(storage::prev_owner_address) != 3);
 
+  ;; if authority is current owner, skipped the update process
+  if (equal_slice_bits(storage::authority_address, storage::owner_address)) { return (); }
+
   slice first = first(storage::editor_addresses);
   slice second = second(storage::editor_addresses);
   repeat(3) { tuples::tpop(storage::editor_addresses); }
@@ -172,7 +175,7 @@ global int storage::remained_redeemable_index;
       1
     ); ;; paying fees, revert on errors
   }
-  
+
   update_previous_owner(storage::owner_address);
   storage::owner_address = new_owner_address;
   storage::owner_public_key = new_owner_public_key;
@@ -310,8 +313,6 @@ global int storage::remained_redeemable_index;
         equal_slice_bits(sender_address, second(storage::prev_owner_address)) |
         equal_slice_bits(sender_address, third(storage::prev_owner_address)));
     }
-    ;; current owner cannot reclaim the sbt since he already owns it
-    throw_unless(401, equal_slice_bits(sender_address, storage::owner_address));
 
     storage::reclaim_at = now();
     transfer_ownership(
