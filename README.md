@@ -1,4 +1,15 @@
-# The One Pass Hackathon
+<div align="center">
+  <a href="https://ton.org">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://ipfs.moralis.io:2053/ipfs/QmXoQdeok1nUfHSMxCEeQ7kE3wkeyZrX4TpEhEQurJ87Z6/The_Open_Pass_Logo_Dune.svg">
+      <img alt="TOP logo" src="https://ipfs.moralis.io:2053/ipfs/QmXoQdeok1nUfHSMxCEeQ7kE3wkeyZrX4TpEhEQurJ87Z6/The_Open_Pass_Logo_Dune.svg">
+    </picture>
+  </a>
+  <h3>Redeemable NFT, Auto-upgraded NFT, iSBT</h3>
+  <hr/>
+</div>
+
+# The One Pass - Optimized Utlilty NFT minting tool for [The Open Network](https://ton.org)
 
 ## Intro
 Around half of the top 100 global brands have issued NFTs. Since brands and customers are familiar with NFTs, utility NFTs may be next. Since blockchain is the cheapest international payment system, issuing NFTs instead of other digital and physical tickets can save billions of dollars in payment processor fees.
